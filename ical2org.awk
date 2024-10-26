@@ -418,9 +418,9 @@ BEGIN {
 
             # translate \n sequences to actual newlines and unprotect commas (,)
             if (condense)
-                print "* <" date "> " gensub("^[ ]+", "", "", unescape(summary, 0))
+                print "*** <" date "> " gensub("^[ ]+", "", "", unescape(summary, 0))
             else
-                print "* " gensub("^[ ]+", "", "g", unescape(summary, 0))
+                print "*** " gensub("^[ ]+", "", "g", unescape(summary, 0))
             print "  :PROPERTIES:"
             print     "  :ID:        " id
             if(length(location))
@@ -452,7 +452,7 @@ BEGIN {
 
             # output original entry if requested by 'original' config option
             if (original)
-                print "** COMMENT original iCal entry\n", gensub("\r", "", "g", icalentry)
+                print "**** COMMENT original iCal entry\n", gensub("\r", "", "g", icalentry)
         }
         UIDS[id] = 1;
     }
