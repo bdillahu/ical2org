@@ -70,31 +70,31 @@ BEGIN {
     # maximum age in days for entries to be output: set this to -1 to
     # get all entries or to N>0 to only get enties that start or end
     # less than N days ago
-    max_age = 7;
+    max_age = -1;
 
     # set to 1 or 0 to yes or not output a header block with TITLE,
     # AUTHOR, EMAIL etc...
-    header = 1;
+    header = 0;
 
     # set to 1 or 0 to yes or not output the original ical preamble as
     # comment
-    preamble = 1;
+    preamble = 0;
 
     # set to 1 to output time and summary as one line starting with
     # the time (value 1) or to 0 to output the summary as first line
     # and the date and time info as a later line (after the property
     # drawer or org complains)
-    condense = 0;
+    condense = 1;
 
     # set to 1 or 0 to yes or not output the original ical entry as a
     # comment (mostly useful for debugging purposes)
-    original = 1;
+    original = 0;
 
     # google truncates long subjects with ... which is misleading in
     # an org file: it gives the unfortunate impression that an
     # expanded entry is still collapsed; value 1 will trim those
     # ... and value 0 doesn't touch them
-    trimdots = 1;
+    trimdots = 0;
 
     # change this to your name
     author = ENVIRON["AUTHOR"] != "" ? ENVIRON["AUTHOR"] : "Marc Sherry"
