@@ -140,14 +140,17 @@ BEGIN {
     }
 }
 
+
 # continuation lines (at least from Google) start with a space. If the
 # continuation is after a processed field (description, summary, attendee,
 # etc.) append the entry to the respective variable
 /^[ ]/ {
-    if (indescription) {
-        entry = entry gensub("\r", "", "g", gensub("^[ ]", "", 1, $0));
-        # print "entry continuation: " entry
-    } else if (insummary) {
+    # if (indescription) {
+    #     entry = entry "\n" $0
+    #     # entry = entry gensub("\r", "", "g", gensub("^[ ]", "", 1, $0));
+    #     # print "entry continuation: " entry
+    # } else
+    if (insummary) {
         summary = summary gensub("\r", "", "g", gensub("^[ ]", "", 1, $0))
         # print "summary continuation: " summary
     } else if (inattendee) {
@@ -204,10 +207,12 @@ BEGIN {
 /^BEGIN:VALARM/ {
     # alarms have their own UID, DESCRIPTION, etc. We don't want these polluting the real fields
     in_alarm = 1
+    indescription = 0;
 }
 
 /^END:VALARM/ {
     in_alarm = 0
+    indescription = 0;
 }
 
 /^[A-Z]/ {
@@ -216,11 +221,13 @@ BEGIN {
     # org file as I output the original input.  This change, which is
     # really content free, makes a revision control system update the
     # repository and confuses.
-    if (preserve)
-        if (! index("DTSTAMP", $1))
-            icalentry = icalentry "\n" $0
+    if (!indescription)
+	if (!match($0, /^DESCRIPTION/))
+            if (preserve)
+		# if (! index("DTSTAMP", $1))
+		icalentry = icalentry "\n" $0
     # this line terminates the collection of description and summary entries
-    indescription = 0;
+    # indescription = 0;
     insummary = 0;
     inattendee = 0;
 }
@@ -229,6 +236,7 @@ BEGIN {
 
 /^DTSTART;VALUE=DATE[^-]/ {
     date = datestring($2);
+    indescription = 0;
 }
 
 /^DTEND;VALUE=DATE[^-]/ {
@@ -236,6 +244,7 @@ BEGIN {
     end_date = datestring($2, 1);
     if ( issameday )
         end_date = ""
+    indescription = 0;
 }
 
 
@@ -256,6 +265,7 @@ BEGIN {
     if (date != "" && got_end_date) {
         fix_date_time()
     }
+    indescription = 0;
 }
 
 # and the same for the end date;
@@ -277,6 +287,7 @@ BEGIN {
         # We got start and end date/time, let's munge as appropriate
         fix_date_time()
     }
+    indescription = 0;
 }
 
 
@@ -292,6 +303,7 @@ BEGIN {
     if (date != "" && got_end_date) {
         fix_date_time()
     }
+    indescription = 0;
 }
 
 # and the same for the end date;
@@ -308,6 +320,7 @@ BEGIN {
         # We got start and end date/time, let's munge as appropriate
         fix_date_time()
     }
+    indescription = 0;
 }
 
 
@@ -336,6 +349,7 @@ BEGIN {
         intfreq = ""
     if (repeat_count != "")      # TODO: count repeats correctly
         intfreq = ""
+    indescription = 0;
 }
 
 # The description will the contents of the entry in org-mode.
@@ -347,7 +361,7 @@ BEGIN {
         # strip "DESCRIPTION:" off of the front instead
         # $1 = "";
         entry = entry gensub("\r", "", "g", gensub(/^DESCRIPTION:/, "", 1, $0));
-        indescription = 1;
+	indescription = 1;
     }
 }
 
@@ -373,24 +387,72 @@ BEGIN {
     if (!in_alarm) {
         id = gensub("\r", "", "g", $2);
     }
+    indescription = 0;
 }
 
 /^LOCATION/ {
     location = unescape(gensub("\r", "", "g", $2), 0);
     inlocation = 1;
     # print "Location: " location
+    indescription = 0;
 }
 
 /^STATUS/ {
     status = gensub("\r", "", "g", $2);
     # print "Status: " status
+    indescription = 0;
 }
 
 /^ATTENDEE/ {
     attendee = gensub("\r", "", "g", $0);
     inattendee = 1;
     # print "Attendee: " attendee
+    indescription = 0;
 }
+
+# any other line is part of the description - bcd
+/^.*/ {
+    # print "in my section"
+    # print "field = " $0
+    if (indescription) {
+	# print "in description = " $0
+        # entry = entry "\n" $0
+
+	# Handle asterisks at start of line - they get treated as org headers if left
+	# convert to dashes
+	
+	# count asterisk
+ 	count = 0
+	match($0, /^*+/);
+	# find number of asterisks at start of line
+	count = RLENGTH
+	if (count > 0) {
+	    # printf("There are %d asterisks\n", RLENGTH);
+	    # this line prints X number of dashes into the "asterisks" variable
+	    dashes = sprintf("%.*s ", count, "----------------------------");
+	    # this substitutes the asterisks with the dashes
+	    sub("^\\*+ ", dashes, $0);
+	    # if (preserve)
+	    #	icalentry = icalentry "\n" $0
+	}
+	
+        entry = entry "\n" $0
+	if (preserve) {
+	    # print "here 2 = " $0
+	    icalentry = icalentry "\n" $0
+	}
+        # entry = entry gensub("\r", "", "g", gensub("^[ ]", "", 1, $0));
+        # print "entry continuation: " entry
+    } 
+}
+
+# capture empty lines and make sure they are in the preserve file
+# /^$/ {
+#    if (indescription) {
+#	if (preserve)
+#	    icalentry = icalentry "\n" $0
+#    }
+#}
 
 # when we reach the end of the event line, we output everything we
 # have collected so far, creating a top level org headline with the
