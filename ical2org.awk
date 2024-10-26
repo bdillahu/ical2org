@@ -417,10 +417,42 @@ BEGIN {
     indescription = 0;
 }
 
+# any other line is part of the description - bcd
+/^.*/ {
+    # print "in my section"
+    # print "field = " $0
+    if (indescription) {
+	# print "in description = " $0
+        # entry = entry "\n" $0
+
+	# Handle asterisks at start of line - they get treated as org headers if left
+	# convert to dashes
+	
+	# count asterisk
+ 	count = 0
+	match($0, /^*+/);
+	# find number of asterisks at start of line
+	count = RLENGTH
+	if (count > 0) {
+	    # printf("There are %d asterisks\n", RLENGTH);
+	    # this line prints X number of dashes into the "asterisks" variable
+	    dashes = sprintf("%.*s ", count, "----------------------------");
+	    # this substitutes the asterisks with the dashes
+	    sub("^\\*+ ", dashes, $0);
+	    # if (preserve)
+	    #	icalentry = icalentry "\n" $0
+	}
+	
+        entry = entry "\n" $0
 	if (preserve) {
 	    # print "here 2 = " $0
 	    icalentry = icalentry "\n" $0
 	}
+        # entry = entry gensub("\r", "", "g", gensub("^[ ]", "", 1, $0));
+        # print "entry continuation: " entry
+    } 
+}
+
 # capture empty lines and make sure they are in the preserve file
 # /^$/ {
 #    if (indescription) {
