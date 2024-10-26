@@ -554,7 +554,8 @@ function datetimestring(input, offset)
 
     stamp = stamp + offset * 60;
 
-    return strftime("%Y-%m-%d %a %H:%M", stamp);
+    # bcd - added "1" utc_flag to force it to act like it is UTC time
+    return strftime("%Y-%m-%d %a %H:%M", stamp, 1);
 }
 
 # function to convert an iCal date into an org date;
@@ -604,7 +605,8 @@ function datestring(input, isenddate)
     }
 
     # return the date and day of week
-    return strftime("%Y-%m-%d %a", stamp);
+    # bcd - added "1" utc_flag to force it to act like it is UTC time
+    return strftime("%Y-%m-%d %a", stamp, 1);
 }
 
 # Add the current attendee's response to a set, so we can list who's going
