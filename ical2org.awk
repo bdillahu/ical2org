@@ -162,9 +162,13 @@ BEGIN {
         location = location unescape(gensub("\r", "", "g", $0), 0);
 
     }
-    if (preserve)
-        icalentry = icalentry "\n" $0
+    if (!indescription) {
+	if (preserve)
+	    icalentry = icalentry "\n" $0
+    }
 }
+
+
 
 /^BEGIN:VEVENT/ {
     # start of an event: initialize global values used for each event
@@ -221,9 +225,11 @@ BEGIN {
     # org file as I output the original input.  This change, which is
     # really content free, makes a revision control system update the
     # repository and confuses.
-    if (preserve)
-        if (! index("DTSTAMP", $1))
-            icalentry = icalentry "\n" $0
+    if (!indescription)
+	if (!match($0, /^DESCRIPTION/))
+            if (preserve)
+		# if (! index("DTSTAMP", $1))
+		icalentry = icalentry "\n" $0
     # this line terminates the collection of description and summary entries
     # indescription = 0;
     insummary = 0;
@@ -377,6 +383,8 @@ BEGIN {
        insummary = 1;
        # print "Summary: " summary
     }
+    if (preserve)
+	icalentry = icalentry "\n" $0
     indescription = 0;
 }
 
@@ -408,6 +416,18 @@ BEGIN {
     # print "Attendee: " attendee
     indescription = 0;
 }
+
+	if (preserve) {
+	    # print "here 2 = " $0
+	    icalentry = icalentry "\n" $0
+	}
+# capture empty lines and make sure they are in the preserve file
+# /^$/ {
+#    if (indescription) {
+#	if (preserve)
+#	    icalentry = icalentry "\n" $0
+#    }
+#}
 
 # when we reach the end of the event line, we output everything we
 # have collected so far, creating a top level org headline with the
