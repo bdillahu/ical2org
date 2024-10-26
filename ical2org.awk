@@ -88,7 +88,7 @@ BEGIN {
 
     # set to 1 or 0 to yes or not output the original ical entry as a
     # comment (mostly useful for debugging purposes)
-    original = 0;
+    original = 1;
 
     # google truncates long subjects with ... which is misleading in
     # an org file: it gives the unfortunate impression that an
@@ -97,13 +97,13 @@ BEGIN {
     trimdots = 0;
 
     # change this to your name
-    author = ENVIRON["AUTHOR"] != "" ? ENVIRON["AUTHOR"] : "Marc Sherry"
+    author = ENVIRON["AUTHOR"] != "" ? ENVIRON["AUTHOR"] : "Bruce C. Dillahunty"
 
     # and to your email address
-    emailaddress = ENVIRON["EMAIL"] != "" ? ENVIRON["EMAIL"] : "unknown"
+    emailaddress = ENVIRON["EMAIL"] != "" ? ENVIRON["EMAIL"] : "bdillahu@peachbush.com"
 
     # main title of the Org file
-    title = ENVIRON["TITLE"] != "" ? ENVIRON["TITLE"] : "Main Google calendar entries"
+    title = ENVIRON["TITLE"] != "" ? ENVIRON["TITLE"] : "Old calendar entries"
 
     # calendar/category name for display in org-mode
     calendarname = ENVIRON["CALENDAR"] != "" ? ENVIRON["CALENDAR"] : "unknown"
