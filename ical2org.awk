@@ -162,9 +162,13 @@ BEGIN {
         location = location unescape(gensub("\r", "", "g", $0), 0);
 
     }
-    if (preserve)
-        icalentry = icalentry "\n" $0
+    if (!indescription) {
+	if (preserve)
+	    icalentry = icalentry "\n" $0
+    }
 }
+
+
 
 /^BEGIN:VEVENT/ {
     # start of an event: initialize global values used for each event
@@ -379,6 +383,9 @@ BEGIN {
        insummary = 1;
        # print "Summary: " summary
     }
+    if (preserve)
+	icalentry = icalentry "\n" $0
+    indescription = 0;
 }
 
 # the unique ID will be stored as a property of the entry
