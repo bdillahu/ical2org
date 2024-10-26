@@ -193,7 +193,7 @@ BEGIN {
     # if this is the first event, output the preamble from the iCal file
     if (first) {
         if(preamble) {
-            print "* COMMENT original iCal preamble"
+            print "*** COMMENT original iCal preamble"
             print gensub("\r", "", "g", icalentry)
         }
         if (preserve)
